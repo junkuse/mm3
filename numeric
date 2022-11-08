@@ -1,0 +1,83 @@
+
+from __future__ import division 
+import numpy as np
+import matplotlib.pyplot as plt
+
+def exmp1_def_fn(tau, w):
+    return w - tau**2 + 1.0
+
+def exmp1_sol(t):   
+    return (t+1.0)**2 - np.exp(t)/2.0
+
+def euler(def_fn, a, b, ya, N):    
+    f = def_fn  
+    h = (b-a)/N     
+    t = np.arange(a, b+h, h)   
+    y = np.zeros((N+1,))   
+    y[0] = ya    
+    
+    for i in range(0, N):        
+        tau = t[i]  
+        w = y[i]            
+        y[i+1] = y[i] + h * f(tau, w)    
+    return (t, y)
+
+
+def Runge_kutta4(def_fn, a, b, ya, N):  
+    f = def_fn              
+    h = (b-a)/N         
+    t = np.arange(a, b+h, h)     
+    y = np.zeros((N+1,))     
+    y[0] = ya               
+    for i in range(0,N):
+        k1 = h * f(t[i],y[i])
+        k2 = h * f(t[i] + (h/2.0), y[i] +(k1/2.0))
+        k3 = h * f(t[i] + (h/2.0), y[i] + (k2/2.0))
+        k4 = h * f(t[i] + h, y[i] + k3)        
+        y[i + 1] = y[i] + (k1 + 2.0*k2 + 2.0*k3 + k4)/6.0  
+    return (t,y)
+
+def AB_Predictor_Corrector(def_fn, a, b, ya, N):    
+    f = def_fn              
+    h = (b-a)/N         
+    t = np.arange(a, b+h, h)     
+    y = np.zeros((N+1,))     
+    y[0] = ya               
+    for i in range(0,N):
+        if i in range(0,3):
+            k1 = h * f(t[i],y[i])
+            k2 = h * f(t[i] + (h/2.0), y[i] +(k1/2.0))
+            k3 = h * f(t[i] + (h/2.0), y[i] + (k2/2.0))
+            k4 = h * f(t[i] + h, y[i] + k3)
+        
+            y[i + 1] = y[i] + (k1 + 2.0*k2 + 2.0*k3 + k4)/6.0
+            
+        else:
+            
+             y[i + 1] = y[i] + h*(55.0 * f(t[i],y[i]) - 59.0 * f(t[i-1],y[i-1]) + 37.0 * f(t[i-2],y[i-2]) - 9.0 * f(t[i-3],y[i-3]))/24.0
+             
+             
+             y[i + 1] = y[i] + h*(9.0 * f(t[i+1], y[i + 1]) + 19.0 * f(t[i],y[i]) - 5.0 * f(t[i-1],y[i-1]) + f(t[i-2],y[i-2]))/24.0                    
+    return(t,y)
+
+#EULER PLOTTING EXAMPLE
+N = 20  # number of mesh points
+a = 0.0 # left end point of interval [a,b]
+b = 2.0 # right end point of interval [a,b]
+ya = 0.5 # initial value y(a)
+def_fn = exmp1_def_fn
+sol = exmp1_sol
+(t,y) = euler(def_fn, a, b, ya, N)
+# compute exact for example #1 solution for comparison
+z = sol(t) 
+#Plotting example #1 
+print('Errors at time mesh points, Example #1:')
+print(np.abs(np.transpose(np.ravel(y)-z)))
+plt.figure(1)
+plt.rcParams.update({'font.size': 20}) 
+plt.plot(t, z, 'b-', marker='o', linewidth=2)   
+plt.plot(t, y, 'r--', marker='*', linewidth=2)  
+plt.xlabel('t') 
+plt.ylabel('y(t)')  
+plt.legend(['Exact solution', 'Euler approximation, Example #1 '], loc='lower right')   # set legend and location
+plt.show()
