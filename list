@@ -7,3 +7,5 @@ pricebreak
 reg
 setup
 time
+global
+local
